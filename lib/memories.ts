@@ -6,10 +6,10 @@ import { Memory } from '@/types/memory';
 const MEMORY_DIR = path.join(process.cwd(), '..', 'memory');
 const MEMORY_FILE = path.join(process.cwd(), '..', 'MEMORY.md');
 
-export function parseDateFromFilename(filename: string): Date | null {
-  const match = filename.match(/(\d{4})-(\d{2})-(\d{2})\.md$/);
+export function parseDateFromContent(content: string): Date | null {
+  const match = content.match(/<!--\s*Date:\s*(\d{4}-\d{2}-\d{2})\s*-->/);
   if (!match) return null;
-  return new Date(`${match[1]}-${match[2]}-${match[3]}`);
+  return new Date(match[1]);
 }
 
 export function extractTitle(content: string): string {
@@ -49,8 +49,8 @@ export async function loadDailyMemories(): Promise<Memory[]> {
     for (const file of mdFiles) {
       const filePath = path.join(MEMORY_DIR, file);
       const content = fs.readFileSync(filePath, 'utf-8');
-      const date = parseDateFromFilename(file);
-      
+      const date = parseDateFromContent(content);
+
       if (!date) continue;
       
       memories.push({
