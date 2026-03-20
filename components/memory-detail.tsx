@@ -47,6 +47,38 @@ function getTypeLabel(type: Memory['type']) {
 
 function formatContent(content: string): string {
   // Simple markdown-like formatting
+
+  // Handle tables first (before processing other elements)
+  // Match markdown tables: header row, separator row, data rows
+  // Using RegExp constructor to avoid issues with literal newlines
+  const tableRegex = new RegExp('^(\\|[^\\n]+\\|)\\n\\|([\\-\\|\\s]+)\\|\\n((?:\\|[^\\n]+\\|\\n?)+)', 'gm');
+  content = content.replace(tableRegex, (match, headerRow, separator, bodyRows) => {
+    // Parse header cells
+    const headers = headerRow
+      .split('|')
+      .filter((cell: string) => cell.trim() !== '')
+      .map((cell: string) => cell.trim());
+
+    // Parse body rows
+    const rows = bodyRows
+      .trim()
+      .split('\n')
+      .map((row: string) => {
+        const cells = row
+          .split('|')
+          .filter((cell: string) => cell.trim() !== '')
+          .map((cell: string) => cell.trim());
+        return `<tr>${cells.map((cell: string) => `<td class="border border-border px-3 py-2">${cell}</td>`).join('')}</tr>`;
+      })
+      .join('');
+
+    const headerHtml = headers
+      .map((h: string) => `<th class="border border-border px-3 py-2 bg-muted font-semibold text-left">${h}</th>`)
+      .join('');
+
+    return `<table class="border-collapse border border-border w-full mb-4"><thead><tr>${headerHtml}</tr></thead><tbody>${rows}</tbody></table>`;
+  });
+
   return content
     .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mb-4">$1</h1>')
     .replace(/^## (.*$)/gim, '<h2 class="text-xl font-semibold mb-3 mt-6">$1</h2>')
