@@ -3,7 +3,7 @@ export interface Memory {
   title: string;
   content: string;
   date: Date;
-  type: 'daily' | 'longterm' | 'conversation';
+  type: 'daily' | 'longterm';
   source: string;
   tags?: string[];
 }
@@ -17,7 +17,7 @@ export interface SearchResult {
   }[];
 }
 
-export type FilterType = 'all' | 'daily' | 'longterm' | 'conversation';
+export type FilterType = 'all' | 'daily' | 'longterm';
 
 export interface DateRange {
   from?: Date;

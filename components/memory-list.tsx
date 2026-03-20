@@ -18,7 +18,6 @@ interface MemoryListProps {
     all: number;
     daily: number;
     longterm: number;
-    conversation: number;
   };
   initialFilter: FilterType;
   initialSearch: string;

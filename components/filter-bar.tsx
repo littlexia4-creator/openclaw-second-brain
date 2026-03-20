@@ -2,7 +2,7 @@
 
 import { FilterType } from '@/types/memory';
 import { Button } from '@/components/ui/button';
-import { Calendar, Brain, MessageSquare, Layers } from 'lucide-react';
+import { Calendar, Brain, Layers } from 'lucide-react';
 
 interface FilterBarProps {
   activeFilter: FilterType;
@@ -11,7 +11,6 @@ interface FilterBarProps {
     all: number;
     daily: number;
     longterm: number;
-    conversation: number;
   };
 }
 
@@ -19,7 +18,6 @@ const filters: { value: FilterType; label: string; icon: React.ReactNode }[] = [
   { value: 'all', label: 'All', icon: <Layers className="h-4 w-4" /> },
   { value: 'daily', label: 'Daily', icon: <Calendar className="h-4 w-4" /> },
   { value: 'longterm', label: 'Long-term', icon: <Brain className="h-4 w-4" /> },
-  { value: 'conversation', label: 'Conversations', icon: <MessageSquare className="h-4 w-4" /> },
 ];
 
 export function FilterBar({ activeFilter, onFilterChange, counts }: FilterBarProps) {

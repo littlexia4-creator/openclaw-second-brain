@@ -122,7 +122,7 @@ export function searchMemories(memories: Memory[], query: string): Memory[] {
 
 export function filterMemories(
   memories: Memory[],
-  type: 'all' | 'daily' | 'longterm' | 'conversation',
+  type: 'all' | 'daily' | 'longterm',
   dateRange?: { from?: Date; to?: Date }
 ): Memory[] {
   return memories.filter(memory => {

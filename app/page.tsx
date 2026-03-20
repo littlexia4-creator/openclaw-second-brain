@@ -10,7 +10,6 @@ export default async function Home() {
     all: allMemories.length,
     daily: allMemories.filter((m) => m.type === 'daily').length,
     longterm: allMemories.filter((m) => m.type === 'longterm').length,
-    conversation: allMemories.filter((m) => m.type === 'conversation').length,
   };
 
   return (
