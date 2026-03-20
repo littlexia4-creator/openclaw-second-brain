@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useMemo } from 'react';
 import { Memory, FilterType } from '@/types/memory';
 import { MemoryCard } from '@/components/memory-card';
 import { MemoryDetail } from '@/components/memory-detail';
@@ -26,41 +25,43 @@ interface MemoryListProps {
 }
 
 export function MemoryList({
-  memories,
   allMemories,
   counts,
   initialFilter,
   initialSearch,
 }: MemoryListProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [filter, setFilter] = useState<FilterType>(initialFilter);
   const [search, setSearch] = useState(initialSearch);
 
+  const filteredMemories = useMemo(() => {
+    let result = allMemories;
+
+    if (filter !== 'all') {
+      result = result.filter((m) => m.type === filter);
+    }
+
+    if (search) {
+      const lowerSearch = search.toLowerCase();
+      result = result.filter(
+        (m) =>
+          m.title.toLowerCase().includes(lowerSearch) ||
+          m.content.toLowerCase().includes(lowerSearch) ||
+          m.tags?.some((t) => t.toLowerCase().includes(lowerSearch))
+      );
+    }
+
+    return result;
+  }, [allMemories, filter, search]);
+
   const handleFilterChange = (newFilter: FilterType) => {
     setFilter(newFilter);
-    const params = new URLSearchParams(searchParams);
-    if (newFilter !== 'all') {
-      params.set('filter', newFilter);
-    } else {
-      params.delete('filter');
-    }
-    router.push(`/?${params.toString()}`);
   };
 
   const handleSearch = (value: string) => {
     setSearch(value);
-    const params = new URLSearchParams(searchParams);
-    if (value) {
-      params.set('search', value);
-    } else {
-      params.delete('search');
-    }
-    router.push(`/?${params.toString()}`);
   };
 
   const handleMemorySelect = (memory: Memory) => {
@@ -116,7 +117,7 @@ export function MemoryList({
       {/* Memory Grid */}
       <ScrollArea className="flex-1 px-6 py-6">
         <div className="max-w-7xl mx-auto">
-          {memories.length === 0 ? (
+          {filteredMemories.length === 0 ? (
             <div className="text-center py-20">
               <Brain className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
               <h3 className="text-lg font-medium text-muted-foreground">
@@ -128,7 +129,7 @@ export function MemoryList({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {memories.map((memory) => (
+              {filteredMemories.map((memory) => (
                 <MemoryCard
                   key={memory.id}
                   memory={memory}
@@ -143,7 +144,7 @@ export function MemoryList({
       {/* Footer */}
       <footer className="border-t bg-card px-6 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-sm text-muted-foreground">
-          <span>{memories.length} memories shown</span>
+          <span>{filteredMemories.length} memories shown</span>
           <span>Total: {allMemories.length} memories</span>
         </div>
       </footer>
