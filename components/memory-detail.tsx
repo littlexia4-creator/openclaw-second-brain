@@ -77,9 +77,9 @@ export function MemoryDetail({ memory, open, onOpenChange }: MemoryDetailProps) 
           </div>
         </DialogHeader>
         <Separator />
-        <ScrollArea className="px-6 py-4 max-h-[60vh]">
+        <div className="px-6 py-4 max-h-[60vh] overflow-y-auto overflow-x-auto">
           <div
-            className="prose prose-sm dark:prose-invert max-w-none"
+            className="prose prose-sm dark:prose-invert max-w-none whitespace-nowrap"
             dangerouslySetInnerHTML={{ __html: formatContent(memory.content) }}
           />
           {memory.tags && memory.tags.length > 0 && (
@@ -94,7 +94,7 @@ export function MemoryDetail({ memory, open, onOpenChange }: MemoryDetailProps) 
               </div>
             </>
           )}
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
