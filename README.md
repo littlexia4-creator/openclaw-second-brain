@@ -33,9 +33,6 @@ npm run build
 
 The app reads from your OpenClaw workspace:
 
-- **Daily Notes**: `../memory/YYYY-MM-DD.md` files
-- **Long-term Memory**: `../MEMORY.md` file
-
 ## Usage
 
 1. **Browse Memories**: View all your notes in a clean grid layout
@@ -51,16 +48,3 @@ The app reads from your OpenClaw workspace:
 - shadcn/ui components
 - date-fns for date formatting
 - gray-matter for markdown parsing
-
-## Development
-
-```bash
-# Start dev server
-npm run dev
-
-# Type check
-npx tsc --noEmit
-
-# Build
-npm run build
-```
