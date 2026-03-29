@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { format } from 'date-fns';
 import { Memory } from '@/types/memory';
 
 const MEMORY_DIR = path.join(process.cwd(), '..', 'memory');
@@ -58,6 +59,7 @@ export async function loadDailyMemories(): Promise<Memory[]> {
         title: extractTitle(content),
         content,
         date,
+        dateFormatted: format(date, 'MMMM d, yyyy'),
         type: 'daily',
         source: file,
         tags: extractTags(content),
@@ -81,11 +83,13 @@ export async function loadLongTermMemory(): Promise<Memory[]> {
     const content = fs.readFileSync(MEMORY_FILE, 'utf-8');
     const parsed = matter(content);
     
+    const now = new Date();
     memories.push({
       id: 'longterm-memory',
       title: 'Long-term Memory',
       content: parsed.content,
-      date: new Date(),
+      date: now,
+      dateFormatted: format(now, 'MMMM d, yyyy'),
       type: 'longterm',
       source: 'MEMORY.md',
       tags: extractTags(parsed.content),

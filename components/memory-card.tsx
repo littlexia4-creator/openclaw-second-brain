@@ -4,7 +4,6 @@ import { Memory } from '@/types/memory';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Brain, MessageSquare, FileText } from 'lucide-react';
-import { format } from 'date-fns';
 
 interface MemoryCardProps {
   memory: Memory;
@@ -71,7 +70,7 @@ export function MemoryCard({ memory, onClick }: MemoryCardProps) {
           </Badge>
         </div>
         <p className="text-xs text-muted-foreground">
-          {format(memory.date, 'MMMM d, yyyy')} · {memory.source}
+          {memory.dateFormatted} · {memory.source}
         </p>
       </CardHeader>
       <CardContent className="pt-0">

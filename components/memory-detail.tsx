@@ -11,7 +11,6 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Calendar, Brain, MessageSquare, FileText } from 'lucide-react';
-import { format } from 'date-fns';
 
 interface MemoryDetailProps {
   memory: Memory | null;
@@ -103,7 +102,7 @@ export function MemoryDetail({ memory, open, onOpenChange }: MemoryDetailProps) 
           <div className="flex items-center gap-4 mt-2">
             <Badge variant="secondary">{getTypeLabel(memory.type)}</Badge>
             <span className="text-sm text-muted-foreground">
-              {format(memory.date, 'MMMM d, yyyy')}
+              {memory.dateFormatted}
             </span>
             <span className="text-sm text-muted-foreground">· {memory.source}</span>
           </div>

@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/command';
 import { Memory } from '@/types/memory';
 import { FileText, Brain, MessageSquare, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
 
 interface SearchPaletteProps {
   memories: Memory[];
@@ -92,7 +91,7 @@ export function SearchPalette({ memories, onSelect, open, onOpenChange }: Search
                 <div className="flex-1 min-w-0">
                   <p className="truncate font-medium">{memory.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {format(memory.date, 'MMM d, yyyy')}
+                    {memory.dateFormatted}
                     {memory.tags && memory.tags.length > 0 && (
                       <span className="ml-2">· {memory.tags.slice(0, 3).join(', ')}</span>
                     )}

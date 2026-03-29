@@ -3,6 +3,7 @@ export interface Memory {
   title: string;
   content: string;
   date: Date;
+  dateFormatted: string;
   type: 'daily' | 'longterm';
   source: string;
   tags?: string[];
