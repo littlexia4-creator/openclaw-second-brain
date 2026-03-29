@@ -68,7 +68,7 @@ export function SearchPalette({ memories, onSelect, open, onOpenChange }: Search
   }, {} as Record<string, Memory[]>);
 
   return (
-    <CommandDialog open={open} onOpenChange={onOpenChange}>
+    <CommandDialog open={open} onOpenChange={onOpenChange} shouldFilter={false}>
       <CommandInput
         placeholder="Search memories..."
         value={search}
