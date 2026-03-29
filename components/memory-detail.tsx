@@ -8,7 +8,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Calendar, Brain, MessageSquare, FileText } from 'lucide-react';
 
@@ -45,20 +44,27 @@ function getTypeLabel(type: Memory['type']) {
 }
 
 function formatContent(content: string): string {
-  // Simple markdown-like formatting
+  // Handle fenced code blocks (```lang ... ```)
+  content = content.replace(/```(\w*)\n([\s\S]*?)```/g, (_match, lang, code) => {
+    const escapedCode = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .trimEnd();
+    const langLabel = lang
+      ? `<div class="code-lang">${lang}</div>`
+      : '';
+    return `<div class="code-block">${langLabel}<pre><code>${escapedCode}</code></pre></div>`;
+  });
 
-  // Handle tables first (before processing other elements)
-  // Match markdown tables: header row, separator row, data rows
-  // Using RegExp constructor to avoid issues with literal newlines
-  const tableRegex = new RegExp('^(\\|[^\\n]+\\|)\\n\\|([\\-\\|\\s]+)\\|\\n((?:\\|[^\\n]+\\|\\n?)+)', 'gm');
-  content = content.replace(tableRegex, (match, headerRow, separator, bodyRows) => {
-    // Parse header cells
+  // Handle tables
+  const tableRegex = new RegExp('^(\\|[^\\n]+\\|)\\n\\|([\\-\\|\\s:]+)\\|\\n((?:\\|[^\\n]+\\|\\n?)+)', 'gm');
+  content = content.replace(tableRegex, (_match, headerRow, _separator, bodyRows) => {
     const headers = headerRow
       .split('|')
       .filter((cell: string) => cell.trim() !== '')
       .map((cell: string) => cell.trim());
 
-    // Parse body rows
     const rows = bodyRows
       .trim()
       .split('\n')
@@ -67,24 +73,28 @@ function formatContent(content: string): string {
           .split('|')
           .filter((cell: string) => cell.trim() !== '')
           .map((cell: string) => cell.trim());
-        return `<tr>${cells.map((cell: string) => `<td class="border border-border px-3 py-2">${cell}</td>`).join('')}</tr>`;
+        return `<tr>${cells.map((cell: string) => `<td>${cell}</td>`).join('')}</tr>`;
       })
       .join('');
 
     const headerHtml = headers
-      .map((h: string) => `<th class="border border-border px-3 py-2 bg-muted font-semibold text-left">${h}</th>`)
+      .map((h: string) => `<th>${h}</th>`)
       .join('');
 
-    return `<table class="border-collapse border border-border w-full mb-4"><thead><tr>${headerHtml}</tr></thead><tbody>${rows}</tbody></table>`;
+    return `<div class="table-wrapper"><table><thead><tr>${headerHtml}</tr></thead><tbody>${rows}</tbody></table></div>`;
   });
 
+  // Handle list items (before line breaks)
+  content = content.replace(/^- (.*$)/gim, '<li>$1</li>');
+  content = content.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+
   return content
-    .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mb-4">$1</h1>')
-    .replace(/^## (.*$)/gim, '<h2 class="text-xl font-semibold mb-3 mt-6">$1</h2>')
-    .replace(/^### (.*$)/gim, '<h3 class="text-lg font-medium mb-2 mt-4">$1</h3>')
+    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/`(.*?)`/g, '<code class="bg-muted px-1 py-0.5 rounded text-sm">$1</code>')
+    .replace(/`(.*?)`/g, '<code>$1</code>')
     .replace(/\n/g, '<br />');
 }
 
@@ -93,32 +103,28 @@ export function MemoryDetail({ memory, open, onOpenChange }: MemoryDetailProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] p-0">
-        <DialogHeader className="px-6 pt-6 pb-4">
-          <div className="flex items-center gap-3">
+      <DialogContent className="sm:max-w-3xl max-h-[85vh] p-0 overflow-hidden">
+        <DialogHeader className="px-10 pt-8 pb-2">
+          <div className="flex items-center gap-3 text-muted-foreground text-sm">
             {getIcon(memory.type)}
-            <DialogTitle className="text-xl">{memory.title}</DialogTitle>
+            <Badge variant="secondary" className="text-xs font-normal">{getTypeLabel(memory.type)}</Badge>
+            <span>{memory.dateFormatted}</span>
+            <span>·</span>
+            <span className="font-mono text-xs">{memory.source}</span>
           </div>
-          <div className="flex items-center gap-4 mt-2">
-            <Badge variant="secondary">{getTypeLabel(memory.type)}</Badge>
-            <span className="text-sm text-muted-foreground">
-              {memory.dateFormatted}
-            </span>
-            <span className="text-sm text-muted-foreground">· {memory.source}</span>
-          </div>
+          <DialogTitle className="text-2xl font-bold tracking-tight mt-3">{memory.title}</DialogTitle>
         </DialogHeader>
-        <Separator />
-        <div className="px-6 py-4 max-h-[60vh] overflow-y-auto overflow-x-auto">
+        <div className="px-10 py-6 max-h-[60vh] overflow-y-auto overflow-x-auto">
           <div
-            className="prose prose-sm dark:prose-invert max-w-none whitespace-nowrap"
+            className="gh-prose max-w-none"
             dangerouslySetInnerHTML={{ __html: formatContent(memory.content) }}
           />
           {memory.tags && memory.tags.length > 0 && (
             <>
-              <Separator className="my-4" />
+              <Separator className="my-6" />
               <div className="flex flex-wrap gap-2">
                 {memory.tags.map((tag) => (
-                  <Badge key={tag} variant="outline">
+                  <Badge key={tag} variant="outline" className="text-xs">
                     #{tag}
                   </Badge>
                 ))}
